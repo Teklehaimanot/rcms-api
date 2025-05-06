@@ -6,6 +6,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send(" you are on the home page");
 });
+
 app.use("/rumors", rummersRouter);
 
 app.listen(5000, () => {

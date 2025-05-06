@@ -45,7 +45,7 @@ const getAllRumours = (req, res) => {
 };
 const getRumoursById = (req, res) => {
   const id = req?.params.id;
-  const rumour = rummers.find((rum) => rum.id == id);
+  const rumour = rummers.find((rum) => rum.id === parseInt(id));
   if (!rumour) {
     return res.status(404).json({ message: "rummour not found" });
   }
@@ -55,7 +55,7 @@ const getRumoursById = (req, res) => {
 const updateRumourById = (req, res) => {
   const id = req.params.id;
   const rummerUpdate = req.body;
-  const rumour = rummers.find((rum) => rum.id == id);
+  const rumour = rummers.find((rum) => rum.id === parseInt(id));
   if (!rumour) {
     return res.status(404).json({ message: "rummour not found" });
   }
@@ -89,9 +89,21 @@ const createNewRumour = (req, res) => {
   res.json({ message: "rumour successfully created", data: newRumour });
 };
 
+const deleteRumourById = (req, res) => {
+  const id = req.params.id;
+  const rumour = rummers.find((rum) => rum.id === parseInt(id));
+  if (!rumour) {
+    return res.status(404).json({ message: "roumour not found" });
+  }
+  rummers.filter((rum) => rum.id !== id);
+
+  res.json({ message: "rummer is deleted successfully" });
+};
+
 module.exports = {
   getAllRumours,
   getRumoursById,
   updateRumourById,
   createNewRumour,
+  deleteRumourById,
 };

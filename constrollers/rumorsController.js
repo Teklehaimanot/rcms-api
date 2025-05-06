@@ -1,3 +1,5 @@
+const Rumour = require("../models/Rumour");
+
 const rummers = [
   {
     id: 1,
@@ -40,64 +42,86 @@ const rummers = [
   },
 ];
 
-const getAllRumours = (req, res) => {
-  res.json(rummers);
-};
-const getRumoursById = (req, res) => {
-  const id = req?.params.id;
-  const rumour = rummers.find((rum) => rum.id === parseInt(id));
-  if (!rumour) {
-    return res.status(404).json({ message: "rummour not found" });
+const getAllRumours = async (req, res) => {
+  try {
+    const rms = await Rumour.find();
+    res.json(rms);
+  } catch (error) {
+    console.log(error);
   }
-  res.json(rumour);
 };
-
-const updateRumourById = (req, res) => {
-  const id = req.params.id;
-  const rummerUpdate = req.body;
-  const rumour = rummers.find((rum) => rum.id === parseInt(id));
-  if (!rumour) {
-    return res.status(404).json({ message: "rummour not found" });
+const getRumoursById = async (req, res) => {
+  try {
+    const id = req?.params.id;
+    const rumour = await Rumour.findById(id);
+    if (!rumour) {
+      return res.status(404).json({ message: "rummour not found" });
+    }
+    res.json(rumour);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("iternal server error");
   }
-  rumour.name = rummerUpdate.name ? rummerUpdate.name : rumour.name;
-  rumour.sign = rummerUpdate.sign;
-  rumour.description = rummerUpdate.description;
-  rumour.region = rummerUpdate.region;
-  rumour.zone = rummerUpdate.zone;
-  rumour.kebele = rummerUpdate.kebele;
-  rumour.number_of_case = rummerUpdate.number_of_case;
-  rumour.number_of_death = rummerUpdate.number_of_death;
-  rumour.reporting_date = rummerUpdate.reporting_date;
-
-  res.json({ message: "successfully updated", data: rumour });
 };
 
-const createNewRumour = (req, res) => {
-  const newRumour = {
-    id: rummers.length + 1,
-    name: req.body.name,
-    sign: req.body.sign,
-    description: req.body.description,
-    region: req.body.region,
-    zone: req.body.zone,
-    kebele: req.body.kebele,
-    number_of_case: req.body.number_of_case,
-    number_of_death: req.body.number_of_death,
-    reporting_date: req.body.reporting_date,
-  };
-  rummers.push(newRumour);
-  res.json({ message: "rumour successfully created", data: newRumour });
-};
-
-const deleteRumourById = (req, res) => {
-  const id = req.params.id;
-  const rumour = rummers.find((rum) => rum.id === parseInt(id));
-  if (!rumour) {
-    return res.status(404).json({ message: "roumour not found" });
+const updateRumourById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const rummerUpdate = req.body;
+    //   const rumour = rummers.find((rum) => rum.id === parseInt(id));
+    const rumour = await Rumour.findById(id);
+    console.log(id);
+    if (!rumour) {
+      return res.status(404).json({ message: "rummour not found" });
+    }
+    rumour.name = rummerUpdate.name ? rummerUpdate.name : rumour.name;
+    rumour.sign = rummerUpdate.sign;
+    rumour.description = rummerUpdate.description;
+    rumour.region = rummerUpdate.region;
+    rumour.zone = rummerUpdate.zone;
+    rumour.kebele = rummerUpdate.kebele;
+    rumour.number_of_case = rummerUpdate.number_of_case;
+    rumour.number_of_death = rummerUpdate.number_of_death;
+    rumour.reporting_date = rummerUpdate.reporting_date;
+    await rumour.save();
+    res.json({ message: "successfully updated", data: rumour });
+  } catch (error) {
+    console.log(error);
+    res.json(500).send("internal server error");
   }
-  rummers.filter((rum) => rum.id !== id);
+};
 
-  res.json({ message: "rummer is deleted successfully" });
+const createNewRumour = async (req, res) => {
+  try {
+    const newRumour = new Rumour({
+      name: req.body.name,
+      sign: req.body.sign,
+      description: req.body.description,
+      region: req.body.region,
+      zone: req.body.zone,
+      kebele: req.body.kebele,
+      number_of_case: req.body.number_of_case,
+      number_of_death: req.body.number_of_death,
+      reporting_date: req.body.reporting_date,
+    });
+    await newRumour.save();
+    res.json({ message: "rumour successfully created", data: newRumour });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const deleteRumourById = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const rumour = await Rumour.findByIdAndDelete(id);
+    if (!rumour) {
+      return res.status(404).json({ message: "roumour not found" });
+    }
+    res.json({ message: "rummer is deleted successfully" });
+  } catch (error) {
+    res.status(500).send("internal server error");
+  }
 };
 
 module.exports = {
